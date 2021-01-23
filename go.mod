@@ -1,4 +1,4 @@
-module youOrHell
+module amber
 
 go 1.15
 
