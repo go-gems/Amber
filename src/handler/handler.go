@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
-	"youOrHell/src/storage"
+	"amber/src/storage"
 )
 
 func New(schema string, host string, storage storage.Service) *gin.Engine {

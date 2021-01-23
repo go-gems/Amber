@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"youOrHell/src/config"
-	"youOrHell/src/handler"
-	redis "youOrHell/src/storage"
+	"amber/src/config"
+	"amber/src/handler"
+	redis "amber/src/storage"
 )
 
 func main() {
