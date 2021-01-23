@@ -1,4 +1,5 @@
 POST http://localhost:8080/links
+Content-Type: text/plain
 
 https://perdu.com
 

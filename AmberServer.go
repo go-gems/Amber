@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
 	"amber/src/config"
 	"amber/src/handler"
 	redis "amber/src/storage"
+	"log"
 )
 
 func main() {

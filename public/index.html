@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="main.css">
+    <title>Amber</title>
+</head>
+<body>
+<div class="main-wrapper">
+    <h1 id="main-title">amber</h1>
+
+    <div class="url-custom-input">
+        <input placeholder="https://enteryouurlhere.com" id="url-input" autofocus type="text">
+        <div id="shorten-button">go !</div>
+    </div>
+
+    <div id="error-message" class="bg-red-200 border-red-600 text-red-600 border-l-4 p-4" role="alert">
+        <p class="font-bold">
+            Oops !
+        </p>
+        <p id="error-message-content">
+            Something not very great happened
+        </p>
+    </div>
+</div>
+
+<script src="main.js"></script>
+
+</body>
+</html>
