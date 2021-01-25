@@ -1,6 +1,11 @@
 version: "3.7"
 services:
+  amber:
+    image: amber
+    ports:
+      - 8080:8080
   redis:
+    container_name: amber_redis
     image: redis:alpine
     ports:
       - 6379:6379
