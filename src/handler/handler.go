@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 func New(schema string, host string, storage storage.Service) *gin.Engine {
@@ -14,10 +15,22 @@ func New(schema string, host string, storage storage.Service) *gin.Engine {
 
 	router.Use(static.Serve("/", static.LocalFile("./public", false)))
 	router.POST("/links", storeLink(schema, host, storage))
-	router.GET("/links/all", listAll(schema, host, storage))
-
-	router.GET("/links/stats/:shortLink", getStatistics(storage))
 	router.GET("/r/:shortLink", redirect(storage))
+
+	adminPwd := os.Getenv("ADMIN_PASSWORD")
+	if adminPwd == "" {
+		fmt.Println("WARNING: ADMIN_PASSWORD environment variable is not set. Admin route will be inaccessible or insecure.")
+	}
+
+	admin := router.Group("/admin", gin.BasicAuth(gin.Accounts{
+		"admin": adminPwd,
+	}))
+	admin.GET("/", func(c *gin.Context) {
+		c.File("./public/admin.html")
+	})
+	admin.GET("/links/all", listAll(schema, host, storage))
+	admin.GET("/links/stats/:shortLink", getStatistics(storage))
+	admin.DELETE("/delete/:shortLink", deleteLink(storage))
 
 	return router
 }
@@ -63,6 +76,22 @@ func getStatistics(storage storage.Service) gin.HandlerFunc {
 			"statistics": statistics,
 		})
 
+	}
+}
+
+func deleteLink(storage storage.Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		shortLink, _ := c.Params.Get("shortLink")
+		err := storage.Delete(shortLink)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "error",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"status": "success",
+		})
 	}
 }
 

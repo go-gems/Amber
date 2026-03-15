@@ -20,6 +20,18 @@ func (r *redis) saveToList(code string) {
 	log.Println(err)
 }
 
+func (r *redis) Delete(code string) error {
+	conn := r.pool.Get()
+	defer conn.Close()
+	key := "Shortener:" + code
+	_, err := conn.Do("DEL", key)
+	if err != nil {
+		return err
+	}
+	_, err = conn.Do("LREM", LIST_REDIS, 0, key)
+	return err
+}
+
 func (r *redis) GetAll() []Item {
 	conn := r.pool.Get()
 	defer conn.Close()
