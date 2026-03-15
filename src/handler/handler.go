@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -13,20 +14,24 @@ import (
 func New(schema string, host string, storage storage.Service) *gin.Engine {
 	router := gin.Default()
 
+	router.LoadHTMLGlob("templates/*")
 	router.Use(static.Serve("/", static.LocalFile("./public", false)))
 	router.POST("/links", storeLink(schema, host, storage))
 	router.GET("/r/:shortLink", redirect(storage))
 
 	adminPwd := os.Getenv("ADMIN_PASSWORD")
 	if adminPwd == "" {
-		fmt.Println("WARNING: ADMIN_PASSWORD environment variable is not set. Admin route will be inaccessible or insecure.")
+		log.Fatal("FATAL: ADMIN_PASSWORD environment variable is not set. Admin route cannot be secured.")
 	}
 
 	admin := router.Group("/admin", gin.BasicAuth(gin.Accounts{
 		"admin": adminPwd,
 	}))
 	admin.GET("/", func(c *gin.Context) {
-		c.File("./public/admin.html")
+		links := storage.GetAll()
+		c.HTML(http.StatusOK, "admin.html", gin.H{
+			"links": links,
+		})
 	})
 	admin.GET("/links/all", listAll(schema, host, storage))
 	admin.GET("/links/stats/:shortLink", getStatistics(storage))
