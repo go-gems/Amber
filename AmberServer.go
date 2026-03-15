@@ -29,7 +29,7 @@ func main() {
 		}
 	}
 
-	router := handler.New(configuration.Options.Schema, configuration.Options.Prefix, service)
+	router := handler.New(configuration.Options.Schema, configuration.Options.Prefix, service, configuration.Admin.Password)
 
 	log.Fatal(router.Run())
 }

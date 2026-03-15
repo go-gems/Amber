@@ -11,7 +11,7 @@ import (
 	"os"
 )
 
-func New(schema string, host string, storage storage.Service) *gin.Engine {
+func New(schema string, host string, storage storage.Service, configAdminPwd string) *gin.Engine {
 	router := gin.Default()
 
 	router.LoadHTMLGlob("templates/*")
@@ -21,7 +21,11 @@ func New(schema string, host string, storage storage.Service) *gin.Engine {
 
 	adminPwd := os.Getenv("ADMIN_PASSWORD")
 	if adminPwd == "" {
-		log.Fatal("FATAL: ADMIN_PASSWORD environment variable is not set. Admin route cannot be secured.")
+		adminPwd = configAdminPwd
+	}
+
+	if adminPwd == "" {
+		log.Fatal("FATAL: Admin password is not set in environment or config. Admin route cannot be secured.")
 	}
 
 	admin := router.Group("/admin", gin.BasicAuth(gin.Accounts{
