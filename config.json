@@ -9,5 +9,8 @@
   "redis": {
     "host": "amber_redis",
     "port": "6379"
+  },
+  "admin": {
+    "password": "supersecret"
   }
 }

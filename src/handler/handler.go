@@ -5,19 +5,41 @@ import (
 	"fmt"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 )
 
-func New(schema string, host string, storage storage.Service) *gin.Engine {
+func New(schema string, host string, storage storage.Service, configAdminPwd string) *gin.Engine {
 	router := gin.Default()
 
+	router.LoadHTMLGlob("templates/*")
 	router.Use(static.Serve("/", static.LocalFile("./public", false)))
 	router.POST("/links", storeLink(schema, host, storage))
-	router.GET("/links/all", listAll(schema, host, storage))
-
-	router.GET("/links/stats/:shortLink", getStatistics(storage))
 	router.GET("/r/:shortLink", redirect(storage))
+
+	adminPwd := os.Getenv("ADMIN_PASSWORD")
+	if adminPwd == "" {
+		adminPwd = configAdminPwd
+	}
+
+	if adminPwd == "" {
+		log.Fatal("FATAL: Admin password is not set in environment or config. Admin route cannot be secured.")
+	}
+
+	admin := router.Group("/admin", gin.BasicAuth(gin.Accounts{
+		"admin": adminPwd,
+	}))
+	admin.GET("/", func(c *gin.Context) {
+		links := storage.GetAll()
+		c.HTML(http.StatusOK, "admin.html", gin.H{
+			"links": links,
+		})
+	})
+	admin.GET("/links/all", listAll(schema, host, storage))
+	admin.GET("/links/stats/:shortLink", getStatistics(storage))
+	admin.DELETE("/delete/:shortLink", deleteLink(storage))
 
 	return router
 }
@@ -63,6 +85,22 @@ func getStatistics(storage storage.Service) gin.HandlerFunc {
 			"statistics": statistics,
 		})
 
+	}
+}
+
+func deleteLink(storage storage.Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		shortLink, _ := c.Params.Get("shortLink")
+		err := storage.Delete(shortLink)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"status": "error",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"status": "success",
+		})
 	}
 }
 

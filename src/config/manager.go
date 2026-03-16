@@ -18,6 +18,9 @@ type Config struct {
 		Schema string `json:"schema"`
 		Prefix string `json:"prefix"`
 	} `json:"options"`
+	Admin struct {
+		Password string `json:"password"`
+	} `json:"admin"`
 }
 
 func FromFile(path string) (*Config, error) {

@@ -9,6 +9,7 @@ type Service interface {
 	Load(string) (string, error)
 	LoadInfo(string) (*Item, error)
 	GetAll() []Item
+	Delete(string) error
 	Close() error
 }
 
